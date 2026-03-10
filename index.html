@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KKS — Available Rooms</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: #000033;
+    color: #ffffff;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  /* ── HEADER ──────────────────────────────── */
+  .widget-header {
+    text-align: center;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 4px ridge #ff00ff;
+  }
+
+  .widget-title {
+    font-family: "Impact", "Arial Black", sans-serif;
+    font-size: 30px;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    animation: colorshift 2.5s linear infinite alternate;
+  }
+
+  @keyframes colorshift {
+    0%   { color: #ff0000; text-shadow: 2px 2px 0 #ffff00; }
+    50%  { color: #ff00ff; text-shadow: 2px 2px 0 #00ffff; }
+    100% { color: #ffff00; text-shadow: 2px 2px 0 #ff0000; }
+  }
+
+  .widget-sub {
+    color: #00ffff;
+    font-size: 12px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* ── LOADING / ERROR ─────────────────────── */
+  .center-msg {
+    text-align: center;
+    padding: 40px 20px;
+    color: #aaddff;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .center-msg a { color: #00ffff; }
+
+  .spinner {
+    font-size: 36px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ROOM CARDS ──────────────────────────── */
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .room-card {
+    background: #000050;
+    border: 3px ridge #00ffff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── CARD HEADER ─────────────────────────── */
+  .card-header {
+    background: #000080;
+    border-bottom: 2px solid #ff00ff;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .room-badge {
+    font-family: "Impact", sans-serif;
+    font-size: 20px;
+    color: #ffff00;
+    letter-spacing: 2px;
+  }
+
+  .location-badge {
+    background: #002244;
+    border: 1px solid #0088ff;
+    color: #aaddff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    letter-spacing: 1px;
+  }
+
+  .size-badge {
+    background: #220044;
+    border: 1px solid #ff00ff;
+    color: #ffaaff;
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  /* ── PHOTO STRIP ─────────────────────────── */
+  .photo-strip {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 4px;
+    background: #000020;
+    scrollbar-width: thin;
+    scrollbar-color: #ff00ff #000033;
+    max-height: 160px;
+  }
+
+  .photo-strip img {
+    height: 150px;
+    width: auto;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #330033;
+    cursor: pointer;
+  }
+
+  .photo-strip img:hover { border-color: #ff00ff; }
+
+  /* ── CARD BODY ───────────────────────────── */
+  .card-body {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .room-vibe {
+    color: #ffaaff;
+    font-style: italic;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .room-desc {
+    color: #ddddff;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .room-gear {
+    color: #aaffff;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .room-gear strong { color: #00ffff; }
+
+  /* ── META TAGS ───────────────────────────── */
+  .meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .meta-tag {
+    background: #001030;
+    border: 1px solid #0066aa;
+    color: #88ccff;
+    font-size: 11px;
+    padding: 3px 8px;
+    line-height: 1.4;
+  }
+
+  .meta-tag strong { color: #ffff00; }
+
+  .price-tag {
+    background: #002200;
+    border: 1px solid #00aa00;
+    color: #aaffaa;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+  }
+
+  /* ── CONTACT ─────────────────────────────── */
+  .card-footer {
+    padding: 10px 12px;
+    border-top: 2px dashed #ff00ff;
+    background: #000040;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .contact-btn {
+    display: inline-block;
+    font-family: "Comic Sans MS", cursive;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 7px 14px;
+    border: 2px outset;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .contact-btn.email-btn {
+    background: #ff0000;
+    color: #ffff00;
+    border-color: #ff8888;
+  }
+  .contact-btn.email-btn:hover { background: #cc0000; border-style: inset; }
+
+  .contact-btn.phone-btn {
+    background: #003300;
+    color: #00ff00;
+    border-color: #006600;
+  }
+  .contact-btn.phone-btn:hover { background: #002200; border-style: inset; }
+
+  /* ── DIVIDER ─────────────────────────────── */
+  hr.fancy {
+    border: none;
+    height: 3px;
+    background: linear-gradient(to right, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+    border-radius: 2px;
+  }
+
+  /* ── FOOTER ──────────────────────────────── */
+  .widget-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 3px ridge #ff00ff;
+    color: #556;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .widget-footer a { color: #00ffff; }
+
+  /* ── LIGHTBOX ────────────────────────────── */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  #lightbox.open { display: flex; }
+
+  #lightbox img {
+    max-width: 95vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border: 3px solid #ff00ff;
+  }
+
+  /* ── RESPONSIVE ──────────────────────────── */
+  @media (max-width: 420px) {
+    .widget-title { font-size: 22px; }
+    .rooms-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="widget-header">
+  <div class="widget-title">🎸 AVAILABLE ROOMS 🎸</div>
+  <div class="widget-sub">
+    *~*~* King Killer Studios — Gowanus, Brooklyn *~*~*
+  </div>
+</div>
+
+<!-- ROOMS CONTAINER -->
+<div id="rooms-container">
+  <div class="center-msg">
+    <div class="spinner">⚙</div><br>
+    Loading available rooms...
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="widget-footer">
+  <hr class="fancy" style="margin-bottom:12px;">
+  Questions? Email <a href="mailto:info@kks.nyc">info@kks.nyc</a><br>
+  <span style="color:#444;">Listings updated by leaseholders in real time.</span>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" role="dialog" aria-label="Photo viewer">
+  <img id="lightbox-img" src="" alt="Room photo enlarged">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ================================================================
+//  CONFIGURATION — must match values in portal/index.html
+//  Find these in: Supabase Dashboard > Project Settings > API
+// ================================================================
+const SUPABASE_URL      = 'https://vraioksaisexrcczgozl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_NllWbbajWT5kde8HAg-4SQ_koAYkBMa';
+// ================================================================
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── LOAD ROOMS ─────────────────────────────────────────────────
+async function loadRooms() {
+  const { data: rooms, error } = await db
+    .from('rooms')
+    .select('*')
+    .eq('is_available', true)
+    .order('location')
+    .order('room_number');
+
+  const container = document.getElementById('rooms-container');
+
+  if (error) {
+    container.innerHTML = `
+      <div class="center-msg">
+        <p>⚠ Could not load rooms right now.</p>
+        <p>Try refreshing, or email <a href="mailto:info@kks.nyc">info@kks.nyc</a>.</p>
+      </div>`;
+    return;
+  }
+
+  if (!rooms || rooms.length === 0) {
+    container.innerHTML = `
+      <div class="center-msg">
+        <p style="font-size:28px; margin-bottom:10px;">😔</p>
+        <p style="color:#ffaaaa; font-weight:bold; font-size:16px;">
+          NO ROOMS AVAILABLE RIGHT NOW
+        </p>
+        <p style="margin-top:8px;">
+          Check back soon or email <a href="mailto:info@kks.nyc">info@kks.nyc</a>
+          to get on the waitlist!
+        </p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="rooms-grid">${rooms.map(renderCard).join('')}</div>`;
+
+  // Attach lightbox listeners after rendering
+  container.querySelectorAll('.photo-strip img').forEach(img => {
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(img.src);
+    });
+  });
+}
+
+// ── RENDER A SINGLE ROOM CARD ──────────────────────────────────
+function renderCard(room) {
+  const photos        = room.photos || [];
+  const days          = room.available_days || [];
+  const daysStr       = days.length ? days.join(', ') : null;
+
+  // Photo strip
+  const photoHtml = photos.length
+    ? `<div class="photo-strip">
+        ${photos.map(url =>
+          `<img src="${escHtml(url)}" alt="Room photo" loading="lazy">`
+        ).join('')}
+       </div>`
+    : '';
+
+  // Pricing
+  const priceItems = [];
+  if (room.price_monthly) priceItems.push(`$${Number(room.price_monthly).toLocaleString()}/mo`);
+  if (room.price_hourly)  priceItems.push(`$${Number(room.price_hourly).toFixed(2)}/hr`);
+
+  // Meta tags
+  const metaTags = [];
+  if (daysStr)               metaTags.push(`📅 <strong>DAYS:</strong> ${escHtml(daysStr)}`);
+  if (room.available_hours)  metaTags.push(`⏰ <strong>HOURS:</strong> ${escHtml(room.available_hours)}`);
+  if (priceItems.length)     metaTags.push(`💰 ${escHtml(priceItems.join(' · '))}`);
+
+  // Contact buttons
+  const contactBtns = [];
+  if (room.contact_email) {
+    contactBtns.push(
+      `<a href="mailto:${escHtml(room.contact_email)}" class="contact-btn email-btn">
+        📧 ${escHtml(room.contact_email)}
+       </a>`
+    );
+  }
+  if (room.contact_phone) {
+    const tel = room.contact_phone.replace(/\D/g, '');
+    contactBtns.push(
+      `<a href="tel:${escHtml(tel)}" class="contact-btn phone-btn">
+        📞 ${escHtml(room.contact_phone)}
+       </a>`
+    );
+  }
+
+  return `
+    <div class="room-card">
+      <div class="card-header">
+        <span class="room-badge">ROOM ${escHtml(room.room_number)}</span>
+        <span class="location-badge">📍 ${escHtml(room.location)}</span>
+        ${room.room_size ? `<span class="size-badge">📐 ${escHtml(room.room_size)}</span>` : ''}
+      </div>
+
+      ${photoHtml}
+
+      <div class="card-body">
+        ${room.vibe
+          ? `<div class="room-vibe">✨ <em>${escHtml(room.vibe)}</em></div>`
+          : ''}
+
+        ${room.description
+          ? `<div class="room-desc">${escHtml(room.description)}</div>`
+          : ''}
+
+        ${room.gear
+          ? `<div class="room-gear"><strong>🎸 GEAR:</strong> ${escHtml(room.gear)}</div>`
+          : ''}
+
+        ${metaTags.length
+          ? `<div class="meta-tags">
+              ${metaTags.map(t => `<div class="meta-tag">${t}</div>`).join('')}
+             </div>`
+          : ''}
+      </div>
+
+      ${contactBtns.length
+        ? `<div class="card-footer">${contactBtns.join('')}</div>`
+        : ''}
+    </div>`;
+}
+
+// ── LIGHTBOX ───────────────────────────────────────────────────
+const lightbox    = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightbox.classList.add('open');
+}
+
+lightbox.addEventListener('click', () => {
+  lightbox.classList.remove('open');
+  lightboxImg.src = '';
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') lightbox.classList.remove('open');
+});
+
+// ── XSS HELPER ─────────────────────────────────────────────────
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ── GO ─────────────────────────────────────────────────────────
+loadRooms();
+</script>
+</body>
+</html>
