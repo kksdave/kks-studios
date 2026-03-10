@@ -1,0 +1,361 @@
+/* =============================================
+   King Killer Studios — Available Rooms
+   Style: Dark, editorial, distressed 70s
+   ============================================= */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e0d0b;
+  --surface: #161410;
+  --card: #1c1a16;
+  --border: #2e2b24;
+  --amber: #d4a843;
+  --amber-dim: #8a6a25;
+  --green: #4a7c59;
+  --green-bright: #6db380;
+  --text: #c8bfa8;
+  --text-dim: #7a7060;
+  --text-bright: #e8dfc8;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+html { font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Grain overlay */
+#grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px;
+}
+
+/* ---- HEADER ---- */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 2rem 1.75rem;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--amber);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  border: 2px solid var(--amber-dim);
+  padding: 0.4rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.header-text h1 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 0.01em;
+}
+
+.tagline {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+
+/* ---- MAIN ---- */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+
+.intro {
+  margin-bottom: 2.5rem;
+}
+
+.intro h2 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+}
+
+.intro p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* ---- TABS ---- */
+.location-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 0.6rem 1.2rem;
+  text-transform: uppercase;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab.active {
+  border-bottom-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ---- LOADING ---- */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 0;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- ERROR ---- */
+.error-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ---- GRID ---- */
+.studios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* ---- STUDIO CARD ---- */
+.studio-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--green-bright);
+  padding: 1.5rem;
+  position: relative;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.studio-card:hover {
+  border-color: var(--green-bright);
+  transform: translateY(-2px);
+}
+
+.studio-card .studio-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+
+.studio-card .studio-id {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.studio-card .studio-location {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--amber);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.studio-card .studio-sqft {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-bright);
+  margin-bottom: 0.25rem;
+}
+
+.studio-card .studio-dims {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.studio-card .studio-rent {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--green-bright);
+  font-weight: 500;
+}
+
+.studio-card .studio-rent span {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-left: 0.3rem;
+}
+
+.studio-card .studio-notes {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  line-height: 1.5;
+}
+
+.vacant-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--green);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+}
+
+/* ---- NO VACANCIES ---- */
+.no-vacancies {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-dim);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  margin-bottom: 3rem;
+}
+
+.no-vacancies p { margin-bottom: 0.5rem; }
+
+.no-vacancies a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+.no-vacancies a:hover { text-decoration: underline; }
+
+/* ---- CONTACT ---- */
+.contact-section {
+  border-top: 1px solid var(--border);
+  padding-top: 3rem;
+  text-align: center;
+}
+
+.contact-section h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--text-bright);
+  margin-bottom: 0.75rem;
+}
+
+.contact-section p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background: var(--amber);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.75rem 2rem;
+  transition: background 0.2s;
+}
+
+.cta-button:hover { background: #e8bc55; }
+
+/* ---- FOOTER ---- */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+footer a { color: var(--amber); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+.footer-addresses {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  header { padding: 1.25rem; }
+  main { padding: 2rem 1.25rem 3rem; }
+  .intro h2 { font-size: 1.5rem; }
+  .studios-grid { grid-template-columns: 1fr; }
+  .location-tabs { flex-wrap: wrap; }
+}
